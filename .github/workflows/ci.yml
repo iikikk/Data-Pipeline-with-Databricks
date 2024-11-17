@@ -22,12 +22,10 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.8'
-        
+
     - name: Install dependencies and Databricks CLI
       run: |
         pip install databricks-cli
-        pip install -r requirements.txt
-
 
     # Step 5: 部署到 Databricks
     - name: Deploy to Databricks
