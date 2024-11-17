@@ -27,6 +27,14 @@ jobs:
       run: |
         pip install databricks-cli
 
+    # Step 4: 创建 Databricks 目标目录
+    - name: Create Databricks workspace directory
+      env:
+        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      run: |
+        databricks workspace mkdirs /databricks/path
+
     # Step 5: 部署到 Databricks
     - name: Deploy to Databricks
       env:
@@ -34,3 +42,4 @@ jobs:
         DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       run: |
         databricks workspace import ./qc_wine.py /databricks/path/qc_wine.py --overwrite --language PYTHON
+
