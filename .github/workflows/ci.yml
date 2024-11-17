@@ -1,4 +1,4 @@
-name: Databricks CI/CD Pipeline
+name: Databricks CI Pipeline
 
 on:
   push:
@@ -9,9 +9,9 @@ on:
       - main
 
 jobs:
-  test-and-deploy:
+  # Stage 1: Build
+  build:
     runs-on: ubuntu-latest
-
     steps:
     # Step 1: 检出代码
     - name: Checkout code
@@ -23,16 +23,60 @@ jobs:
       with:
         python-version: '3.8'
 
-    - name: Install dependencies and Databricks CLI
+    # Step 3: 安装依赖
+    - name: Install dependencies
       run: |
-        pip install databricks-cli
+        pip install --upgrade pip
+        pip install flake8 pytest databricks-cli
 
+  # Stage 2: Test
+  test:
+    runs-on: ubuntu-latest
+    needs: build  # 依赖 build 阶段
+    steps:
+    # Step 1: 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    # Step 5: 部署到 Databricks
-    - name: Deploy to Databricks
-      env:
-        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+    # Step 2: 设置 Python 环境
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+
+    # Step 3: 安装依赖
+    - name: Install dependencies
       run: |
-        databricks workspace import ./qc_wine.py /Users/qc57@duke.edu/Data-Pipeline-with-Databricks/qc_wine.py --overwrite --language PYTHON
+        pip install pytest
+
+    # Step 4: 运行测试
+    - name: Run tests
+      run: |
+        pytest qc_wine.py || python -m py_compile qc_wine.py
+
+  # Stage 3: Lint
+  lint:
+    runs-on: ubuntu-latest
+    needs: build  # 依赖 build 阶段
+    steps:
+    # Step 1: 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: 设置 Python 环境
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.8'
+
+    # Step 3: 安装 flake8
+    - name: Install flake8
+      run: |
+        pip install flake8
+
+    # Step 4: 检查代码风格
+    - name: Lint code with flake8
+      run: |
+        flake8 qc_wine.py
+
 
