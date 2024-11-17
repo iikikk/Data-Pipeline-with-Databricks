@@ -33,4 +33,4 @@ jobs:
         DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
         DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       run: |
-        databricks workspace import ./qc_wine.py /databricks/path/qc_wine.py --overwrite
+        databricks workspace import ./qc_wine.py /databricks/path/qc_wine.py --overwrite --language PYTHON
