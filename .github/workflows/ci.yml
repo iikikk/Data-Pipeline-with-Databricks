@@ -33,4 +33,4 @@ jobs:
         DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
         DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       run: |
-        databricks workspace import_dir /local/path/to/pipeline /databricks/path --overwrite
+        databricks workspace import_dir ./qc_wine.py /databricks/path --overwrite
