@@ -1,3 +1,9 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col, sum, when
+
+# Initialize Spark session
+spark = SparkSession.builder.appName("WineQualityProcessing").getOrCreate()
+
 # Databricks notebook source
 # MAGIC %md
 # MAGIC
@@ -11,10 +17,14 @@ df = spark.read.format("csv") \
     .option("header", "true") \
     .option("sep", ";") \
     .option("inferSchema", "true") \
-    .load("/Volumes/ids706_data_engineering/default/qc57_wine/winequality-red.csv")
+    .load(
+        "/Volumes/ids706_data_engineering/default/qc57_wine/"
+        "winequality-red.csv"
+    )
+
 
 # Display the DataFrame
-display(df)
+df.show()
 
 
 # COMMAND ----------
@@ -27,10 +37,10 @@ display(df)
 
 # COMMAND ----------
 
-from pyspark.sql.functions import col, sum
 
 # Sum null values in each column
-null_counts = df.select([sum(col(c).isNull().cast("int")).alias(c) for c in df.columns])
+null_counts = df.select(
+    [sum(col(c).isNull().cast("int")).alias(c) for c in df.columns])
 null_counts.show()
 df_clean = df.dropna()
 
@@ -45,8 +55,6 @@ df_clean = df.dropna()
 
 # COMMAND ----------
 
-
-from pyspark.sql.functions import when
 
 df_with_features = df_clean.withColumn(
     "acidity_level",
@@ -65,7 +73,10 @@ df_with_features.describe().show()
 # COMMAND ----------
 
 # Define the output path
-output_path = "/Volumes/ids706_data_engineering/default/qc57_wine/processed_winequality_data.parquet"
+output_path = (
+    "/Volumes/ids706_data_engineering/default/qc57_wine/"
+    "processed_winequality_data.parquet"
+)
 
 # Write the DataFrame in Parquet format
 df_with_features.write.mode("overwrite").parquet(output_path)
@@ -79,4 +90,4 @@ df_with_features.write.mode("overwrite").parquet(output_path)
 
 # Read the processed data
 processed_df = spark.read.parquet(output_path)
-display(processed_df)
+processed_df.show()
