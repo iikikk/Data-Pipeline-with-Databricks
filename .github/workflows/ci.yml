@@ -12,6 +12,7 @@ jobs:
   # Stage 1: Build
   build:
     runs-on: ubuntu-latest
+
     steps:
     # Step 1: 检出代码
     - name: Checkout code
@@ -21,13 +22,33 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.8'
+        python-version: "3.8"
 
-    # Step 3: 安装依赖
-    - name: Install dependencies
+    # Step 3: 安装 Databricks CLI
+    - name: Install Databricks CLI
       run: |
-        pip install --upgrade pip
-        pip install flake8 pytest databricks-cli
+        pip install databricks-cli
+
+    # Step 4: 配置 Databricks CLI
+    - name: Configure Databricks CLI
+      env:
+        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      run: |
+        databricks configure --token <<EOF
+        $DATABRICKS_HOST
+        $DATABRICKS_TOKEN
+        EOF
+
+    # Step 5: 上传脚本到 Databricks Workspace
+    - name: Upload script to Databricks
+      run: |
+        databricks workspace import ./qc_wine.py /Users/qc57@duke.edu/Data-Pipeline-with-Databricks/qc_wine.py --overwrite --language PYTHON
+
+    # Step 6: 在 Databricks 中运行脚本
+    - name: Run script on Databricks
+      run: |
+        databricks jobs run-now --job-id ${{ secrets.DATABRICKS_JOB_ID }}
 
   # Stage 2: Test
   test:
