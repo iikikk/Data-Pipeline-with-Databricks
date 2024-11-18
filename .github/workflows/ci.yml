@@ -47,6 +47,9 @@ jobs:
 
     # Step 6: 在 Databricks 中运行脚本
     - name: Run script on Databricks
+      env:
+        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       run: |
         databricks jobs run-now --job-id ${{ secrets.DATABRICKS_JOB_ID }}
 
